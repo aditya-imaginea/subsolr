@@ -35,19 +35,13 @@
 
 	<!-- field definitions here -->
 	<biz_field_defintion>
-		<field name="PMN" type="text_en" indexed="true" stored="true"
+		<field name="EMP_ID" type="numeric" indexed="true" stored="true"
 			required="true" multiValued="false" />
-		<field name="PMN_s" type="text_esp" indexed="true" stored="true"
+		<field name="EMP_NAME" type="text_en" indexed="true" stored="true"
 			required="true" multiValued="false" />
-		<field name="PMI " type="numeric" indexed="true" stored="true"
+		<field name="EMP_GENDER " type="text_en" indexed="true" stored="true"
 			required="true" multiValued="false" />
-		<field name="DPMI" type="numeric" indexed="true" stored="true"
-			required="true" multiValued="false" />
-		<field name="AR" type="numeric" indexed="true" stored="true"
-			required="true" multiValued="false" />
-		<field name="PFN" type="text_en" indexed="true" stored="true"
-			required="true" multiValued="false" />
-		<field name="PFN_s" type="text_esp" indexed="true" stored="true"
+		<field name="EMP_HIRE_DATE" type="numeric" indexed="true" stored="true"
 			required="true" multiValued="false" />
 	</biz_field_defintion>
 
