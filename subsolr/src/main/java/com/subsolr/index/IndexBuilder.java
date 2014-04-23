@@ -36,36 +36,18 @@ import com.subsolr.entityprocessors.model.Record;
 public class IndexBuilder implements InitializingBean {
 
 	private Version luceneVersion = null;
-	private String luceneDirectory = null;
+	private String luceneDirectoryPrefix = null;
 	private DocumentContextProcessor documentContextProcessor = null;
 	private FieldContextProcessor fieldContextProcessor = null;
 	public static final Logger logger = LoggerFactory.getLogger(IndexBuilder.class);
 
-	protected final static int INDEXED = 0x00000001;
-	protected final static int TOKENIZED = 0x00000002;
-	protected final static int STORED = 0x00000004;
-	protected final static int BINARY = 0x00000008;
-	protected final static int OMIT_NORMS = 0x00000010;
-	protected final static int OMIT_TF_POSITIONS = 0x00000020;
-	protected final static int STORE_TERMVECTORS = 0x00000040;
-	protected final static int STORE_TERMPOSITIONS = 0x00000080;
-	protected final static int STORE_TERMOFFSETS = 0x00000100;
+	
 
-	protected final static int MULTIVALUED = 0x00000200;
-	protected final static int SORT_MISSING_FIRST = 0x00000400;
-	protected final static int SORT_MISSING_LAST = 0x00000800;
-
-	protected final static int REQUIRED = 0x00001000;
-	protected final static int OMIT_POSITIONS = 0x00002000;
-
-	protected final static int STORE_OFFSETS = 0x00004000;
-	protected final static int DOC_VALUES = 0x00008000;
-
-	static final String[] propertyNames = { "indexed", "tokenized", "stored", "binary", "omitNorms", "omitTermFreqAndPositions", "termVectors", "termPositions", "termOffsets", "multiValued",
+	static final String[] propertyNames = { "indexed", "tokenized", "stored", "IndexProperties.BINARY", "omitNorms", "omitTermFreqAndPositions", "termVectors", "termPositions", "termOffsets", "multiValued",
 			"sortMissingFirst", "sortMissingLast", "required", "omitPositions", "storeOffsetsWithPositions", "docValues" };
 
 	public IndexBuilder(Version luceneVersion, String luceneDirectory, DocumentContextProcessor documentContextProcessor, FieldContextProcessor fieldContextProcessor) {
-		this.luceneDirectory = luceneDirectory;
+		this.luceneDirectoryPrefix = luceneDirectory;
 		this.documentContextProcessor = documentContextProcessor;
 		this.fieldContextProcessor = fieldContextProcessor;
 		this.luceneVersion = luceneVersion;
@@ -143,32 +125,32 @@ public class IndexBuilder implements InitializingBean {
 		// properties
 		// that depend on that.
 		//
-		if (on(falseProps, STORED)) {
-			int pp = STORED | BINARY;
+		if (on(falseProps, IndexProperties.STORED)) {
+			int pp =  IndexProperties.STORED | IndexProperties.BINARY;
 			if (on(pp, trueProps)) {
 				throw new RuntimeException("SchemaField: " + name + " conflicting stored field options:" + props);
 			}
 			p &= ~pp;
 		}
 
-		if (on(falseProps, INDEXED)) {
-			int pp = (INDEXED | STORE_TERMVECTORS | STORE_TERMPOSITIONS | STORE_TERMOFFSETS);
+		if (on(falseProps, IndexProperties.INDEXED)) {
+			int pp = (IndexProperties.INDEXED | IndexProperties.STORE_TERMVECTORS | IndexProperties.STORE_TERMPOSITIONS | IndexProperties.STORE_TERMOFFSETS);
 			if (on(pp, trueProps)) {
 				throw new RuntimeException("SchemaField: " + name + " conflicting 'true' field options for non-indexed field:" + props);
 			}
 			p &= ~pp;
 		}
 
-		if (on(falseProps, INDEXED) && on(falseProps, DOC_VALUES)) {
-			int pp = (SORT_MISSING_FIRST | SORT_MISSING_LAST);
+		if (on(falseProps, IndexProperties.INDEXED) && on(falseProps, IndexProperties.DOC_VALUES)) {
+			int pp = (IndexProperties.SORT_MISSING_FIRST | IndexProperties.SORT_MISSING_LAST);
 			if (on(pp, trueProps)) {
 				throw new RuntimeException("SchemaField: " + name + " conflicting 'true' field options for non-indexed/non-docValues field:" + props);
 			}
 			p &= ~pp;
 		}
 
-		if (on(falseProps, INDEXED)) {
-			int pp = (OMIT_NORMS | OMIT_TF_POSITIONS | OMIT_POSITIONS);
+		if (on(falseProps, IndexProperties.INDEXED)) {
+			int pp = (IndexProperties.OMIT_NORMS | IndexProperties.OMIT_TF_POSITIONS | IndexProperties.OMIT_POSITIONS);
 			if (on(pp, falseProps)) {
 				throw new RuntimeException("SchemaField: " + name + " conflicting 'false' field options for non-indexed field:" + props);
 			}
@@ -176,16 +158,16 @@ public class IndexBuilder implements InitializingBean {
 
 		}
 
-		if (on(trueProps, OMIT_TF_POSITIONS)) {
-			int pp = (OMIT_POSITIONS | OMIT_TF_POSITIONS);
+		if (on(trueProps, IndexProperties.OMIT_TF_POSITIONS)) {
+			int pp = (IndexProperties.OMIT_POSITIONS | IndexProperties.OMIT_TF_POSITIONS);
 			if (on(pp, falseProps)) {
 				throw new RuntimeException("SchemaField: " + name + " conflicting tf and position field options:" + props);
 			}
 			p &= ~pp;
 		}
 
-		if (on(falseProps, STORE_TERMVECTORS)) {
-			int pp = (STORE_TERMVECTORS | STORE_TERMPOSITIONS | STORE_TERMOFFSETS);
+		if (on(falseProps, IndexProperties.STORE_TERMVECTORS)) {
+			int pp = (IndexProperties.STORE_TERMVECTORS | IndexProperties.STORE_TERMPOSITIONS | IndexProperties.STORE_TERMOFFSETS);
 			if (on(pp, trueProps)) {
 				throw new RuntimeException("SchemaField: " + name + " conflicting termvector field options:" + props);
 			}
@@ -193,12 +175,12 @@ public class IndexBuilder implements InitializingBean {
 		}
 
 		// override sort flags
-		if (on(trueProps, SORT_MISSING_FIRST)) {
-			p &= ~SORT_MISSING_LAST;
+		if (on(trueProps, IndexProperties.SORT_MISSING_FIRST)) {
+			p &= ~IndexProperties.SORT_MISSING_LAST;
 		}
 
-		if (on(trueProps, SORT_MISSING_LAST)) {
-			p &= ~SORT_MISSING_FIRST;
+		if (on(trueProps, IndexProperties.SORT_MISSING_LAST)) {
+			p &= ~IndexProperties.SORT_MISSING_FIRST;
 		}
 
 		p &= ~falseProps;
@@ -217,7 +199,7 @@ public class IndexBuilder implements InitializingBean {
 	private IndexWriter getIndexWriterForDocument(boolean b, String documentName) throws IOException {
 
 		StandardAnalyzer analyzer = new StandardAnalyzer(luceneVersion);
-		Directory index = FSDirectory.open(new File(luceneDirectory + File.separator + documentName));
+		Directory index = FSDirectory.open(new File(luceneDirectoryPrefix + File.separator + documentName));
 		IndexWriterConfig config = new IndexWriterConfig(luceneVersion, analyzer);
 		IndexWriter indexWriter = new IndexWriter(index, config);
 		return indexWriter;
