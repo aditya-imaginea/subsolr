@@ -19,56 +19,54 @@ import com.subsolr.entityprocessors.datasources.SQLDataSource;
 import com.subsolr.entityprocessors.model.Record;
 
 /**
- * Processor  for sql queries and mapping to fieldset def
+ * Processor for sql queries and mapping to fieldset def
+ * 
  * @author vamsiy-mac aditya
  */
 
 public class SQLEntityProcessor implements EntityProcessor {
 
-	public static final Logger logger = LoggerFactory.getLogger(SQLEntityProcessor.class);
+   public static final Logger logger = LoggerFactory.getLogger(SQLEntityProcessor.class);
 
-	public List<Record> getRecords(FieldSetDefinition fieldSetDefinition) {
-		SQLDataSource sqlDataSource = (SQLDataSource) fieldSetDefinition.getDataSource();
-		final List<Record> records = Lists.newArrayList();
-		final Map<String, String> fieldNameToEntityNameMap = fieldSetDefinition.getFieldNameToEntityNameMap();
-		JdbcTemplate jdbcTemplate = getJdbcTempate(sqlDataSource);
-		jdbcTemplate.query(fieldSetDefinition.getPropertiesForEntityProcessor().get("SQLQuery"), new RowCallbackHandler() {
-			public void processRow(ResultSet rs) throws SQLException {
-				logger.debug("columns received"+rs.getMetaData());
-				Map<String, String> valueByIndexName = Maps.newHashMap();
-				for (String fieldName : fieldNameToEntityNameMap.keySet()) {
-					String fieldValue = rs.getString(fieldNameToEntityNameMap.get(fieldName));
-					if(fieldValue == null)
-						fieldValue = " ";
-					valueByIndexName.put(fieldName, fieldValue);
-				}
-				records.add(new Record(valueByIndexName));
-			}
-		});
-		return records;
-	}
+   public List<Record> getRecords(FieldSetDefinition fieldSetDefinition) {
+      SQLDataSource sqlDataSource = (SQLDataSource) fieldSetDefinition.getDataSource();
+      final List<Record> records = Lists.newArrayList();
+      final Map<String, String> fieldNameToEntityNameMap = fieldSetDefinition.getFieldNameToEntityNameMap();
+      JdbcTemplate jdbcTemplate = getJdbcTempate(sqlDataSource);
+      jdbcTemplate.query(fieldSetDefinition.getPropertiesForEntityProcessor().get("SQLQuery"),
+            new RowCallbackHandler() {
+               public void processRow(ResultSet rs) throws SQLException {
+                  logger.debug("columns received" + rs.getMetaData());
+                  Map<String, String> valueByIndexName = Maps.newHashMap();
+                  for (String fieldName : fieldNameToEntityNameMap.keySet()) {
+                     String fieldValue = rs.getString(fieldNameToEntityNameMap.get(fieldName));
+                     if (fieldValue == null)
+                        fieldValue = " ";
+                     valueByIndexName.put(fieldName, fieldValue);
+                  }
+                  records.add(new Record(valueByIndexName));
+               }
+            });
+      return records;
+   }
 
-	private JdbcTemplate getJdbcTempate(SQLDataSource sqlDataSource) {
-		JdbcTemplate jdbcTemplate = null;
-		try {
-			Class.forName(sqlDataSource.getDriver());
+   private JdbcTemplate getJdbcTempate(SQLDataSource sqlDataSource) {
+      JdbcTemplate jdbcTemplate = null;
+      try {
+         Class.forName(sqlDataSource.getDriver());
 
-			DriverManagerDataSource dataSource = new DriverManagerDataSource();
-			dataSource.setDriverClassName(sqlDataSource.getDriver());
-			dataSource.setUrl(sqlDataSource.getUrl());
-			dataSource.setUsername(sqlDataSource.getUserId());
-			dataSource.setPassword(sqlDataSource.getPassword());
-			jdbcTemplate = new JdbcTemplate(dataSource);
+         DriverManagerDataSource dataSource = new DriverManagerDataSource();
+         dataSource.setDriverClassName(sqlDataSource.getDriver());
+         dataSource.setUrl(sqlDataSource.getUrl());
+         dataSource.setUsername(sqlDataSource.getUserId());
+         dataSource.setPassword(sqlDataSource.getPassword());
+         jdbcTemplate = new JdbcTemplate(dataSource);
 
-		} catch (ClassNotFoundException e) {
-		        logger.error("Exception occurred while getting connection" + e);
-		        throw new RuntimeException(e.getMessage(), e.getCause());
-		}
-		return jdbcTemplate;
-	}
-
-
-	
-	
+      } catch (ClassNotFoundException e) {
+         logger.error("Exception occurred while getting connection" + e);
+         throw new RuntimeException(e.getMessage(), e.getCause());
+      }
+      return jdbcTemplate;
+   }
 
 }

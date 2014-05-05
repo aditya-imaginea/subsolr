@@ -10,6 +10,12 @@
 
 	<context:property-placeholder location="classpath:application.properties" />
 
+	<bean id="xmlParserUtil" class="com.subsolr.util.XMLParserUtil">
+		<constructor-arg index="0" value="${lucene.version}" 
+	
+	
+	</bean>
+
 	<bean id="fieldContextProcessor" class="com.subsolr.contextprocessor.FieldContextProcessor">
 		<constructor-arg index="0"
 			value="classpath:/com/subsolr/contextprocessors/FieldContext.xml" />
@@ -26,6 +32,19 @@
 
 	</bean>
 
+	<bean id="fieldTypeProcessor"
+		class="com.subsolr.contextprocessor.fieldprocessor.FieldTypeProcessor">
+		<constructor-arg index="0" value="${lucene.version}" />
+		<constructor-arg index="1" ref="xPath" />
+		<constructor-arg index="2" ref="xmlParserUtil" />
+	</bean>
+
+	<bean id="fieldDefinitionProcessor"
+		class="com.subsolr.contextprocessor.fieldprocessor.FieldDefinitionProcessor">
+		<constructor-arg index="0" ref="xmlParserUtil" />
+	</bean>
+
+
 	<bean id="documentBuilderFactory" class="javax.xml.parsers.DocumentBuilderFactory"
 		factory-method="newInstance" />
 	<bean id="documentBuilder" factory-bean="documentBuilderFactory"
@@ -33,7 +52,7 @@
 	<bean id="xPathFactory" class="javax.xml.xpath.XPathFactory"
 		factory-method="newInstance" />
 	<bean id="xPath" factory-bean="xPathFactory" factory-method="newXPath" />
-	
+
 	<bean id="indexBuilder" class="com.subsolr.index.IndexBuilder">
 		<constructor-arg index="0" value="${lucene.version}" />
 		<constructor-arg index="1" value="${indexFilesDirectory.prefix}" />

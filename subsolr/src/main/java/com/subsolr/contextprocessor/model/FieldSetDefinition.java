@@ -13,50 +13,50 @@ import com.subsolr.entityprocessors.datasources.DataSource;
  */
 public class FieldSetDefinition {
 
-	private Map<String, String> fieldNameToEntityNameMap;
-	private DataSource dataSource;
-	private EntityProcessor entityProcessor;
-	private Map<String, String> propertiesForEntityProcessor;
-	private String name;
+   private Map<String, String> fieldNameToEntityNameMap;
+   private DataSource dataSource;
+   private EntityProcessor entityProcessor;
+   private Map<String, String> propertiesForEntityProcessor;
+   private String name;
 
-	public DataSource getDataSource() {
-		return dataSource;
-	}
+   public DataSource getDataSource() {
+      return dataSource;
+   }
 
-	public void setDataSource(DataSource dataSource) {
-		this.dataSource = dataSource;
-	}
+   public void setDataSource(DataSource dataSource) {
+      this.dataSource = dataSource;
+   }
 
-	public EntityProcessor getEntityProcessor() {
-		return entityProcessor;
-	}
+   public EntityProcessor getEntityProcessor() {
+      return entityProcessor;
+   }
 
-	public void setEntityProcessor(EntityProcessor entityProcessor) {
-		this.entityProcessor = entityProcessor;
-	}
+   public void setEntityProcessor(EntityProcessor entityProcessor) {
+      this.entityProcessor = entityProcessor;
+   }
 
-	public Map<String, String> getFieldNameToEntityNameMap() {
-		return fieldNameToEntityNameMap;
-	}
+   public Map<String, String> getFieldNameToEntityNameMap() {
+      return fieldNameToEntityNameMap;
+   }
 
-	public void setFieldNameToEntityNameMap(Map<String, String> fieldNameToEntityNameMap) {
-		this.fieldNameToEntityNameMap = fieldNameToEntityNameMap;
-	}
+   public void setFieldNameToEntityNameMap(Map<String, String> fieldNameToEntityNameMap) {
+      this.fieldNameToEntityNameMap = fieldNameToEntityNameMap;
+   }
 
-	public Map<String, String> getPropertiesForEntityProcessor() {
-		return propertiesForEntityProcessor;
-	}
+   public Map<String, String> getPropertiesForEntityProcessor() {
+      return propertiesForEntityProcessor;
+   }
 
-	public void setPropertiesForEntityProcessor(Map<String, String> propertiesForEntityProcessor) {
-		this.propertiesForEntityProcessor = propertiesForEntityProcessor;
-	}
+   public void setPropertiesForEntityProcessor(Map<String, String> propertiesForEntityProcessor) {
+      this.propertiesForEntityProcessor = propertiesForEntityProcessor;
+   }
 
-	public String getName() {
-		return name;
-	}
+   public String getName() {
+      return name;
+   }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+   public void setName(String name) {
+      this.name = name;
+   }
 
 }

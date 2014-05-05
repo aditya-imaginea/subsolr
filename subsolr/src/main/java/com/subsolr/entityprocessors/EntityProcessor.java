@@ -12,5 +12,5 @@ import com.subsolr.entityprocessors.model.Record;
  */
 
 public interface EntityProcessor {
-	List<Record> getRecords(FieldSetDefinition fieldSetDefinition);
+   List<Record> getRecords(FieldSetDefinition fieldSetDefinition);
 }

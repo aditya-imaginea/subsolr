@@ -18,48 +18,46 @@ import com.subsolr.entityprocessors.model.Record;
 
 public class CSVEntityProcessorTest {
 
-    private CSVEntityProcessor csvEntityProcessor;
+   private CSVEntityProcessor csvEntityProcessor;
 
-    private FieldSetDefinition fieldSetDefinition;
-    
-    @Mock
-    private FieldContextProcessor mockedFieldContextProcessor;
-    
-    @Before
-    public void setUp() throws Exception {
-        
-        fieldSetDefinition = new FieldSetDefinition();
+   private FieldSetDefinition fieldSetDefinition;
 
-        FileDataSource mockedDataSource = new LocalFileDataSource("data");
-        fieldSetDefinition.setDataSource(mockedDataSource);
+   @Mock
+   private FieldContextProcessor mockedFieldContextProcessor;
 
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("EMP_ID", "1");
-        map.put("EMP_NAME", "2");
-        map.put("EMP_GENDER", "3");
-        map.put("EMP_HIRE_DATE", "4");
-        fieldSetDefinition.setFieldNameToEntityNameMap(map);
-        
-        Map<String, String> properties = Maps.newHashMap();
-        String fileName = "employee.csv";
-        properties.put("File", fileName);
-        fieldSetDefinition.setPropertiesForEntityProcessor(properties);
-        
-        csvEntityProcessor = new CSVEntityProcessor();
-    }
+   @Before
+   public void setUp() throws Exception {
 
-    @Test
-    public void testGetRecords() {
+      fieldSetDefinition = new FieldSetDefinition();
 
-        List<Record> records = csvEntityProcessor.getRecords(fieldSetDefinition);
-        
-        // test number of records found.
-        Assert.assertTrue(records.size() == 5);
-        
-        // test if record has 4 specified fields
-        Assert.assertTrue(records.get(0).getValueByIndexName().size() == 4);
-    }
+      FileDataSource mockedDataSource = new LocalFileDataSource("data");
+      fieldSetDefinition.setDataSource(mockedDataSource);
 
+      Map<String, String> map = new HashMap<String, String>();
+      map.put("EMP_ID", "1");
+      map.put("EMP_NAME", "2");
+      map.put("EMP_GENDER", "3");
+      map.put("EMP_HIRE_DATE", "4");
+      fieldSetDefinition.setFieldNameToEntityNameMap(map);
 
+      Map<String, String> properties = Maps.newHashMap();
+      String fileName = "employee.csv";
+      properties.put("File", fileName);
+      fieldSetDefinition.setPropertiesForEntityProcessor(properties);
+
+      csvEntityProcessor = new CSVEntityProcessor();
+   }
+
+   @Test
+   public void testGetRecords() {
+
+      List<Record> records = csvEntityProcessor.getRecords(fieldSetDefinition);
+
+      // test number of records found.
+      Assert.assertTrue(records.size() == 5);
+
+      // test if record has 4 specified fields
+      Assert.assertTrue(records.get(0).getValueByFieldName().size() == 4);
+   }
 
 }

@@ -1,24 +1,26 @@
 package com.subsolr.entityprocessors.model;
 
 import java.util.Map;
+
 /**
  * POJO for records processed by entity processors or field set mapping rules
+ * 
  * @author vamsiy-mac aditya
  */
 public class Record {
-	
-	private Map<String,String> valueByIndexName;
 
-	public Record(Map<String, String> valueByIndexName) {
-		this.valueByIndexName = valueByIndexName;
-	}
+   private Map<String, String> valueByFieldName;
 
-	public Map<String, String> getValueByIndexName() {
-		return valueByIndexName;
-	}
+   public Record(Map<String, String> valueByIndexName) {
+      this.valueByFieldName = valueByIndexName;
+   }
 
-	public void setValueByIndexName(Map<String,String> valueByIndexName) {
-		this.valueByIndexName = valueByIndexName;
-	}
+   public Map<String, String> getValueByFieldName() {
+      return valueByFieldName;
+   }
+
+   public void setValueByFieldName(Map<String, String> valueByIndexName) {
+      this.valueByFieldName = valueByIndexName;
+   }
 
 }

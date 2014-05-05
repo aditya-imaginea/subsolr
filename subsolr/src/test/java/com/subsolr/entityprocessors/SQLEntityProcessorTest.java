@@ -17,48 +17,48 @@ import com.subsolr.entityprocessors.model.Record;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SQLEntityProcessorTest {
-    
-    private SQLEntityProcessor dbEntityProcessor;
 
-    private FieldSetDefinition fieldSetDefinition;
+   private SQLEntityProcessor dbEntityProcessor;
 
-    @Before
-    public void setup() {
-        String sql = "SELECT emp_no as EMP_ID,  first_name as EMP_NAME, gender as EMP_GENDER, "
-                + "hire_date as EMP_HIRE_DATE FROM  employees";
-        dbEntityProcessor = new SQLEntityProcessor();
+   private FieldSetDefinition fieldSetDefinition;
 
-        fieldSetDefinition = new FieldSetDefinition();
+   @Before
+   public void setup() {
+      String sql = "SELECT emp_no as EMP_ID,  first_name as EMP_NAME, gender as EMP_GENDER, "
+            + "hire_date as EMP_HIRE_DATE FROM  employees";
+      dbEntityProcessor = new SQLEntityProcessor();
 
-        String driver = "com.mysql.jdbc.Driver";
-        String url = "jdbc:mysql://localhost:3306/subsolr";
-        String userId = "root";
-        String password = "root";
-        SQLDataSource mockedDataSource = new SQLDataSource(driver, url, userId, password);
-        fieldSetDefinition.setDataSource(mockedDataSource);
+      fieldSetDefinition = new FieldSetDefinition();
 
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("EMP_ID", "EMP_ID");
-        map.put("EMP_NAME", "EMP_NAME");
-        map.put("EMP_GENDER", "EMP_GENDER");
-        map.put("EMP_HIRE_DATE", "EMP_HIRE_DATE");
-        fieldSetDefinition.setFieldNameToEntityNameMap(map);
-        
-        Map<String, String> properties = Maps.newHashMap();
-        properties.put("SQLQuery", sql);
-        fieldSetDefinition.setPropertiesForEntityProcessor(properties);
-    }
+      String driver = "com.mysql.jdbc.Driver";
+      String url = "jdbc:mysql://localhost:3306/subsolr";
+      String userId = "root";
+      String password = "root";
+      SQLDataSource mockedDataSource = new SQLDataSource(driver, url, userId, password);
+      fieldSetDefinition.setDataSource(mockedDataSource);
 
-    @Test
-    public void testGetRecords() {
+      Map<String, String> map = new HashMap<String, String>();
+      map.put("EMP_ID", "EMP_ID");
+      map.put("EMP_NAME", "EMP_NAME");
+      map.put("EMP_GENDER", "EMP_GENDER");
+      map.put("EMP_HIRE_DATE", "EMP_HIRE_DATE");
+      fieldSetDefinition.setFieldNameToEntityNameMap(map);
 
-        List<Record> records = dbEntityProcessor.getRecords(fieldSetDefinition);
-        
-        // test number of records found.
-        Assert.assertTrue(records.size() == 10);
-        
-        // test if record has 4 specified fields
-        Assert.assertTrue(records.get(0).getValueByIndexName().size() == 4);
-    }
+      Map<String, String> properties = Maps.newHashMap();
+      properties.put("SQLQuery", sql);
+      fieldSetDefinition.setPropertiesForEntityProcessor(properties);
+   }
+
+   @Test
+   public void testGetRecords() {
+
+      List<Record> records = dbEntityProcessor.getRecords(fieldSetDefinition);
+
+      // test number of records found.
+      Assert.assertTrue(records.size() == 10);
+
+      // test if record has 4 specified fields
+      Assert.assertTrue(records.get(0).getValueByFieldName().size() == 4);
+   }
 
 }
