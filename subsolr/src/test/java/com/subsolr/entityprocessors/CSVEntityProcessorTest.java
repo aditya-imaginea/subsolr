@@ -12,9 +12,9 @@ import org.mockito.Mock;
 import com.google.common.collect.Maps;
 import com.subsolr.contextprocessor.FieldContextProcessor;
 import com.subsolr.contextprocessor.model.FieldSetDefinition;
-import com.subsolr.entityprocessors.datasources.FileDataSource;
-import com.subsolr.entityprocessors.datasources.LocalFileDataSource;
-import com.subsolr.entityprocessors.model.Record;
+import com.subsolr.datasource.FileDataSource;
+import com.subsolr.datasource.LocalFileDataSource;
+import com.subsolr.datasource.model.Record;
 
 public class CSVEntityProcessorTest {
 

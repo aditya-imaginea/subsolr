@@ -12,8 +12,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.collect.Maps;
 import com.subsolr.contextprocessor.model.FieldSetDefinition;
-import com.subsolr.entityprocessors.datasources.SQLDataSource;
-import com.subsolr.entityprocessors.model.Record;
+import com.subsolr.datasource.SQLDataSource;
+import com.subsolr.datasource.model.Record;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SQLEntityProcessorTest {

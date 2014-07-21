@@ -2,8 +2,8 @@ package com.subsolr.contextprocessor.model;
 
 import java.util.Map;
 
+import com.subsolr.datasource.DataSource;
 import com.subsolr.entityprocessors.EntityProcessor;
-import com.subsolr.entityprocessors.datasources.DataSource;
 
 /**
  * Pojo for Fieldset definition having fields entity processor mappings

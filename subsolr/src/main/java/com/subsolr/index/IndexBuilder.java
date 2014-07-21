@@ -26,7 +26,7 @@ import com.subsolr.contextprocessor.DocumentContextProcessor;
 import com.subsolr.contextprocessor.FieldContextProcessor;
 import com.subsolr.contextprocessor.model.DocumentDefinition;
 import com.subsolr.contextprocessor.model.FieldDefinition;
-import com.subsolr.entityprocessors.model.Record;
+import com.subsolr.datasource.model.Record;
 
 /**
  * Index Builder for all document definitions defined in documnet config xml

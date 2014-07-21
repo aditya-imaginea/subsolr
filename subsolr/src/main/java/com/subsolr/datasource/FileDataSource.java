@@ -1,4 +1,4 @@
-package com.subsolr.entityprocessors.datasources;
+package com.subsolr.datasource;
 
 import java.io.Reader;
 

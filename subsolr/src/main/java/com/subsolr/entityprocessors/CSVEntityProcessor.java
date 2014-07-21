@@ -10,8 +10,8 @@ import au.com.bytecode.opencsv.CSVReader;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.subsolr.contextprocessor.model.FieldSetDefinition;
-import com.subsolr.entityprocessors.datasources.FileDataSource;
-import com.subsolr.entityprocessors.model.Record;
+import com.subsolr.datasource.FileDataSource;
+import com.subsolr.datasource.model.Record;
 
 /**
  * Processor for csv files

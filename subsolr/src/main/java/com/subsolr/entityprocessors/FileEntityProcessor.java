@@ -3,7 +3,7 @@ package com.subsolr.entityprocessors;
 import java.util.List;
 
 import com.subsolr.contextprocessor.model.FieldSetDefinition;
-import com.subsolr.entityprocessors.model.Record;
+import com.subsolr.datasource.model.Record;
 
 /**
  * Processor for Files like XML/JSON files

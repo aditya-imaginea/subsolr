@@ -18,7 +18,7 @@ import com.google.common.collect.Sets;
 import com.googlecode.cqengine.IndexedCollection;
 import com.googlecode.cqengine.attribute.SimpleAttribute;
 import com.googlecode.cqengine.resultset.ResultSet;
-import com.subsolr.entityprocessors.model.Record;
+import com.subsolr.datasource.model.Record;
 import com.subsolr.util.DynamicIndexer;
 import com.subsolr.util.PojoGenerator;
 

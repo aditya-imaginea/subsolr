@@ -1,28 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <documents>
 	<!-- configure data sources here -->
-	<SQLdatasource id="ds1">
+	<Datasource id="ds1" type="sql">
 		<host>jdbc:mysql://localhost:3306/ventana_development</host>
 		<userid>solrlite</userid>
 		<password>admin</password>
 		<driver>com.mysql.jdbc.Driver</driver>
-	</SQLdatasource>
+	</Datasource>
 
-	<FtpDataSource id="ds2">
+	<DataSource id="ds2" type="ftp">
 		<host>xxxx</host>
 		<userid> xxxx</userid>
 		<password>yyyy</password>
-	</FtpDataSource>
+	</DataSource>
 
-	<FileDataSource id="ds3">
+	<DataSource id="ds3" type="file">
 		<path>local_path</path>
-	</FileDataSource>
+		<file_name>xxxxx</file_name>
+	</DataSource>
 
 
 	<!-- configure documents here -->
 	<!-- <document name="ProcedureDocument">
 
-		<fieldset name="procedure_family" sourceId="ds1"
+		<fieldset name="procedure_family" sourceId="ds1" 
 			EntityProcessor="com.subsolr.entityprocessors.SQLEntityProcessor">
 			<field column_name="DEFAULT_PROCEDURE_ID" field_map_name="DEFAULT_PROCEDURE_ID" />
 			<field column_name="PM_NAME" field_map_name="PM_NAME" />

@@ -1,4 +1,4 @@
-package com.subsolr.entityprocessors.model;
+package com.subsolr.datasource.model;
 
 import java.util.Map;
 
