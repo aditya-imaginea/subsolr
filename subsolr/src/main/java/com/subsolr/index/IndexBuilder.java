@@ -1,221 +1,187 @@
 package com.subsolr.index;
 
-import java.io.File;
+import com.subsolr.config.DocumentConfigurationBean;
+import com.subsolr.config.FieldConfigurationBean;
+import com.subsolr.model.Record;
+import com.subsolr.template.DocumentTemplate;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.IndexableField;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import org.apache.solr.schema.FieldType;
-import org.apache.solr.schema.SchemaField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import com.subsolr.contextprocessor.DocumentContextProcessor;
-import com.subsolr.contextprocessor.FieldContextProcessor;
-import com.subsolr.contextprocessor.model.DocumentDefinition;
-import com.subsolr.contextprocessor.model.FieldDefinition;
-import com.subsolr.datasource.model.Record;
-
 /**
- * Index Builder for all document definitions defined in documnet config xml
- * 
+ * Index Builder for all document definitions defined in documnet config xml.
+ *
  * @author vamsiy-mac aditya
  */
 public class IndexBuilder implements InitializingBean {
 
-   private Version luceneVersion = null;
-   private String luceneDirectoryPrefix = null;
-   private DocumentContextProcessor documentContextProcessor = null;
-   private FieldContextProcessor fieldContextProcessor = null;
-   public static final Logger logger = LoggerFactory.getLogger(IndexBuilder.class);
+    private Version luceneVersion = null;
+    private String luceneDirectoryPrefix = null;
+    private DocumentConfigurationBean documentConfiguration = null;
+    private FieldConfigurationBean fieldConfiguration = null;
+    public static final Logger logger = LoggerFactory.getLogger(IndexBuilder.class);
 
-   static final String[] propertyNames = { "indexed", "tokenized", "stored", "IndexProperties.BINARY", "omitNorms",
-         "omitTermFreqAndPositions", "termVectors", "termPositions", "termOffsets", "multiValued", "sortMissingFirst",
-         "sortMissingLast", "required", "omitPositions", "storeOffsetsWithPositions", "docValues" };
+    static final String[] propertyNames = {"indexed", "tokenized", "stored", "IndexProperties.BINARY", "omitNorms",
+        "omitTermFreqAndPositions", "termVectors", "termPositions", "termOffsets", "multiValued", "sortMissingFirst",
+        "sortMissingLast", "required", "omitPositions", "storeOffsetsWithPositions", "docValues"};
 
-   public IndexBuilder(Version luceneVersion, String luceneDirectory,
-         DocumentContextProcessor documentContextProcessor, FieldContextProcessor fieldContextProcessor) {
-      this.luceneDirectoryPrefix = luceneDirectory;
-      this.documentContextProcessor = documentContextProcessor;
-      this.fieldContextProcessor = fieldContextProcessor;
-      this.luceneVersion = luceneVersion;
-   }
+    public IndexBuilder(Version luceneVersion, String luceneDirectory,
+            DocumentConfigurationBean documentContextProcessor, FieldConfigurationBean fieldConfiguration) {
+        this.luceneDirectoryPrefix = luceneDirectory;
+        this.documentConfiguration = documentContextProcessor;
+        this.fieldConfiguration = fieldConfiguration;
+        this.luceneVersion = luceneVersion;
+    }
+    
+    
+    
+    public void writeDocument(List<Document> docs,String name) throws Exception {
+        System.out.println("Writing document "+name);
+        try (IndexWriter writer = IndexUtilities.getIndexWriterForDocument(name, luceneVersion, luceneDirectoryPrefix)) {
+           for(Document doc : docs) {
+                writer.addDocument(doc);
+           }
+            writer.commit();
+        }
+    }
 
-   public void indexRecordsForDocument(List<Record> recordLists, String documentName) throws IOException,
-         IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException,
-         SecurityException, NoSuchMethodException {
-      IndexWriter writer = IndexUtilities.getIndexWriterForDocument(documentName, luceneVersion, luceneDirectoryPrefix);
-      logger.debug("processing documentName -  " + documentName);
 
-      for (Record record : recordLists) {
-         Document doc = new Document();
-         Map<String, String> valueByFieldName = record.getValueByFieldName();
-         for (Entry<String, String> fieldDefEntry : valueByFieldName.entrySet()) {
-            if (null != fieldDefEntry.getValue()) {
-               FieldDefinition fieldDefinition = fieldContextProcessor
-                     .getFieldDefinitionsByName(fieldDefEntry.getKey());
-               logger.debug("processing fieldDefinition -  " + fieldDefinition.getFieldName());
-               Class<? extends FieldType> fieldTypeClassName = fieldDefinition.getFieldTypeDefinition()
-                     .getFieldTypeClassName();
-               FieldType fieldType = fieldTypeClassName.newInstance();
-               List<Analyzer> analyzer = fieldDefinition.getFieldTypeDefinition().getAnalyzer();
-               if (analyzer.size() != 0) {
-                  fieldType.setAnalyzer(analyzer.get(0));
-                  fieldType.setIsExplicitAnalyzer(true);
-               }
-               SchemaField schemaField = new SchemaField(fieldDefinition.getFieldName(), fieldType, calcProps(
-                     fieldDefinition.getFieldName(), fieldType, fieldDefinition.getFieldProperties()), "");
-               IndexableField field = schemaField.createField(fieldDefEntry.getValue(), 1.0f);
-               doc.add(field);
+    static int parseProperties(Map<String, ?> properties, boolean which, boolean failOnError) {
+        int props = 0;
+        for (Map.Entry<String, ?> entry : properties.entrySet()) {
+            Object val = entry.getValue();
+            if (val == null) {
+                continue;
             }
+            boolean boolVal = val instanceof Boolean ? (Boolean) val : Boolean.parseBoolean(val.toString());
+            if (boolVal == which) {
+                props |= propertyNameToInt(entry.getKey(), failOnError);
+            }
+        }
+        return props;
+    }
 
-         }
-         writer.addDocument(doc);
-         writer.commit();
-         logger.debug("processing done for  documentName -  " + documentName);
+    static int propertyNameToInt(String name, boolean failOnError) {
+        for (int i = 0; i < propertyNames.length; i++) {
+            if (propertyNames[i].equals(name)) {
+                return 1 << i;
+            }
+        }
+        if (failOnError && !"default".equals(name)) {
+            throw new IllegalArgumentException("Invalid field property: " + name);
+        } else {
+            return 0;
+        }
+    }
 
-      }
-      writer.close();
+    static int calcProps(String name, FieldType ft, Map<String, ?> props) {
+        int trueProps = parseProperties(props, true, true);
+        int falseProps = parseProperties(props, false, true);
 
-   }
+        int p = 0;
 
-   static int parseProperties(Map<String, ?> properties, boolean which, boolean failOnError) {
-      int props = 0;
-      for (Map.Entry<String, ?> entry : properties.entrySet()) {
-         Object val = entry.getValue();
-         if (val == null)
-            continue;
-         boolean boolVal = val instanceof Boolean ? (Boolean) val : Boolean.parseBoolean(val.toString());
-         if (boolVal == which) {
-            props |= propertyNameToInt(entry.getKey(), failOnError);
-         }
-      }
-      return props;
-   }
+        //
+        // If any properties were explicitly turned off, then turn off other
+        // properties
+        // that depend on that.
+        //
+        if (on(falseProps, IndexConstants.STORED)) {
+            int pp = IndexConstants.STORED | IndexConstants.BINARY;
+            if (on(pp, trueProps)) {
+                throw new RuntimeException("SchemaField: " + name + " conflicting stored field options:" + props);
+            }
+            p &= ~pp;
+        }
 
-   static int propertyNameToInt(String name, boolean failOnError) {
-      for (int i = 0; i < propertyNames.length; i++) {
-         if (propertyNames[i].equals(name)) {
-            return 1 << i;
-         }
-      }
-      if (failOnError && !"default".equals(name)) {
-         throw new IllegalArgumentException("Invalid field property: " + name);
-      } else {
-         return 0;
-      }
-   }
+        if (on(falseProps, IndexConstants.INDEXED)) {
+            int pp = (IndexConstants.INDEXED | IndexConstants.STORE_TERMVECTORS | IndexConstants.STORE_TERMPOSITIONS | IndexConstants.STORE_TERMOFFSETS);
+            if (on(pp, trueProps)) {
+                throw new RuntimeException("SchemaField: " + name
+                        + " conflicting 'true' field options for non-indexed field:" + props);
+            }
+            p &= ~pp;
+        }
 
-   static int calcProps(String name, FieldType ft, Map<String, ?> props) {
-      int trueProps = parseProperties(props, true, true);
-      int falseProps = parseProperties(props, false, true);
+        if (on(falseProps, IndexConstants.INDEXED) && on(falseProps, IndexConstants.DOC_VALUES)) {
+            int pp = (IndexConstants.SORT_MISSING_FIRST | IndexConstants.SORT_MISSING_LAST);
+            if (on(pp, trueProps)) {
+                throw new RuntimeException("SchemaField: " + name
+                        + " conflicting 'true' field options for non-indexed/non-docValues field:" + props);
+            }
+            p &= ~pp;
+        }
 
-      int p = 0;
+        if (on(falseProps, IndexConstants.INDEXED)) {
+            int pp = (IndexConstants.OMIT_NORMS | IndexConstants.OMIT_TF_POSITIONS | IndexConstants.OMIT_POSITIONS);
+            if (on(pp, falseProps)) {
+                throw new RuntimeException("SchemaField: " + name
+                        + " conflicting 'false' field options for non-indexed field:" + props);
+            }
+            p &= ~pp;
 
-      //
-      // If any properties were explicitly turned off, then turn off other
-      // properties
-      // that depend on that.
-      //
-      if (on(falseProps, IndexProperties.STORED)) {
-         int pp = IndexProperties.STORED | IndexProperties.BINARY;
-         if (on(pp, trueProps)) {
-            throw new RuntimeException("SchemaField: " + name + " conflicting stored field options:" + props);
-         }
-         p &= ~pp;
-      }
+        }
 
-      if (on(falseProps, IndexProperties.INDEXED)) {
-         int pp = (IndexProperties.INDEXED | IndexProperties.STORE_TERMVECTORS | IndexProperties.STORE_TERMPOSITIONS | IndexProperties.STORE_TERMOFFSETS);
-         if (on(pp, trueProps)) {
-            throw new RuntimeException("SchemaField: " + name
-                  + " conflicting 'true' field options for non-indexed field:" + props);
-         }
-         p &= ~pp;
-      }
+        if (on(trueProps, IndexConstants.OMIT_TF_POSITIONS)) {
+            int pp = (IndexConstants.OMIT_POSITIONS | IndexConstants.OMIT_TF_POSITIONS);
+            if (on(pp, falseProps)) {
+                throw new RuntimeException("SchemaField: " + name + " conflicting tf and position field options:" + props);
+            }
+            p &= ~pp;
+        }
 
-      if (on(falseProps, IndexProperties.INDEXED) && on(falseProps, IndexProperties.DOC_VALUES)) {
-         int pp = (IndexProperties.SORT_MISSING_FIRST | IndexProperties.SORT_MISSING_LAST);
-         if (on(pp, trueProps)) {
-            throw new RuntimeException("SchemaField: " + name
-                  + " conflicting 'true' field options for non-indexed/non-docValues field:" + props);
-         }
-         p &= ~pp;
-      }
+        if (on(falseProps, IndexConstants.STORE_TERMVECTORS)) {
+            int pp = (IndexConstants.STORE_TERMVECTORS | IndexConstants.STORE_TERMPOSITIONS | IndexConstants.STORE_TERMOFFSETS);
+            if (on(pp, trueProps)) {
+                throw new RuntimeException("SchemaField: " + name + " conflicting termvector field options:" + props);
+            }
+            p &= ~pp;
+        }
 
-      if (on(falseProps, IndexProperties.INDEXED)) {
-         int pp = (IndexProperties.OMIT_NORMS | IndexProperties.OMIT_TF_POSITIONS | IndexProperties.OMIT_POSITIONS);
-         if (on(pp, falseProps)) {
-            throw new RuntimeException("SchemaField: " + name
-                  + " conflicting 'false' field options for non-indexed field:" + props);
-         }
-         p &= ~pp;
+        // override sort flags
+        if (on(trueProps, IndexConstants.SORT_MISSING_FIRST)) {
+            p &= ~IndexConstants.SORT_MISSING_LAST;
+        }
 
-      }
+        if (on(trueProps, IndexConstants.SORT_MISSING_LAST)) {
+            p &= ~IndexConstants.SORT_MISSING_FIRST;
+        }
 
-      if (on(trueProps, IndexProperties.OMIT_TF_POSITIONS)) {
-         int pp = (IndexProperties.OMIT_POSITIONS | IndexProperties.OMIT_TF_POSITIONS);
-         if (on(pp, falseProps)) {
-            throw new RuntimeException("SchemaField: " + name + " conflicting tf and position field options:" + props);
-         }
-         p &= ~pp;
-      }
+        p &= ~falseProps;
+        p |= trueProps;
+        return p;
+    }
 
-      if (on(falseProps, IndexProperties.STORE_TERMVECTORS)) {
-         int pp = (IndexProperties.STORE_TERMVECTORS | IndexProperties.STORE_TERMPOSITIONS | IndexProperties.STORE_TERMOFFSETS);
-         if (on(pp, trueProps)) {
-            throw new RuntimeException("SchemaField: " + name + " conflicting termvector field options:" + props);
-         }
-         p &= ~pp;
-      }
+    static boolean on(int bitfield, int props) {
+        return (bitfield & props) != 0;
+    }
 
-      // override sort flags
-      if (on(trueProps, IndexProperties.SORT_MISSING_FIRST)) {
-         p &= ~IndexProperties.SORT_MISSING_LAST;
-      }
+    static boolean off(int bitfield, int props) {
+        return (bitfield & props) == 0;
+    }
 
-      if (on(trueProps, IndexProperties.SORT_MISSING_LAST)) {
-         p &= ~IndexProperties.SORT_MISSING_FIRST;
-      }
+    public void rebuildIndexes() throws IOException {
+    }
 
-      p &= ~falseProps;
-      p |= trueProps;
-      return p;
-   }
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        Map<String, DocumentTemplate> documentDefinitions = documentConfiguration.getExtractor().getDocumentTemplatesByName();
+        
+        for (Entry<String, DocumentTemplate> documentEntryDefinition : documentDefinitions.entrySet()) {
+            String doucmentName = documentEntryDefinition.getKey();
+            DocumentTemplate documentTemplate = documentEntryDefinition.getValue();
+            List<Record> recordsToBeIndexed = documentTemplate.getRecordsToBeIndexed();
+            
+            writeDocument(IndexUtilities.getDocument(recordsToBeIndexed, doucmentName, fieldConfiguration),doucmentName);
+        }
 
-   static boolean on(int bitfield, int props) {
-      return (bitfield & props) != 0;
-   }
-
-   static boolean off(int bitfield, int props) {
-      return (bitfield & props) == 0;
-   }
-
-   public void rebuildIndexes() throws IOException {
-   }
-
-   public void afterPropertiesSet() throws Exception {
-      Map<String, DocumentDefinition> documentDefinitions = documentContextProcessor.getDocumentDefinitions();
-      for (Entry<String, DocumentDefinition> documentEntryDefinition : documentDefinitions.entrySet()) {
-         String doucmentName = documentEntryDefinition.getKey();
-         DocumentDefinition documentDefinition = documentEntryDefinition.getValue();
-         List<Record> recordsToBeIndexed = documentDefinition.getRecordsToBeIndexed();
-         indexRecordsForDocument(recordsToBeIndexed, doucmentName);
-
-      }
-
-   }
+    }
 
 }

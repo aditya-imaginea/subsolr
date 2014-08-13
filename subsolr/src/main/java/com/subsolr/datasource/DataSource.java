@@ -1,9 +1,8 @@
 package com.subsolr.datasource;
 
+import com.subsolr.model.Record;
+import com.subsolr.template.FieldSetDefinition;
 import java.util.List;
-
-import com.subsolr.contextprocessor.model.FieldSetDefinition;
-import com.subsolr.datasource.model.Record;
 
 public interface DataSource {
    String getDataSourceName();

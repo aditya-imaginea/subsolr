@@ -1,11 +1,12 @@
 package com.subsolr.datasource;
 
+import com.subsolr.datasource.impl.FtpDataSource;
+import com.subsolr.datasource.impl.LocalFileDataSource;
+import com.subsolr.datasource.impl.SQLDataSource;
+import com.subsolr.util.XMLParserUtil;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
-
 import org.w3c.dom.Node;
-
-import com.subsolr.util.XMLParserUtil;
 
 public class DataSourceFactory {
 
@@ -19,7 +20,8 @@ public class DataSourceFactory {
 
    public DataSource getDataSource(Node dataSource) throws XPathExpressionException {
       DataSource ds;
-      switch (xmlParserUtil.getAttributeValueInNode(dataSource, "type")) {
+      String type = xmlParserUtil.getAttributeValueInNode(dataSource, "type");
+      switch (type) {
       case "sql":
          ds = new SQLDataSource(dataSource,xmlParserUtil,xpath);
          break;
