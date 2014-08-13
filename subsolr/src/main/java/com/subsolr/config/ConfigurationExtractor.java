@@ -117,6 +117,10 @@ public class ConfigurationExtractor {
             String sourceId = xmlParserUtil.getAttributeValueInNode(fieldSetNode, "sourceId");
             String transformerKey = xmlParserUtil.getAttributeValueInNode(fieldSetNode, "transformer");
             ModelTransformer trans = transformerByName.get(transformerKey);
+			if(trans==null) {
+                System.out.println("No transformer defined for "+fieldSetName+". Using default");
+                trans = new DefaultTransformerImpl();
+            }
             if (xmlParserUtil.getAttributeValueInNode(fieldSetNode, "transKeys") != null) {
                 String[] transKeys = xmlParserUtil.getAttributeValueInNode(fieldSetNode, "transKeys").split(",");
                 Map<String, Object> keys = new HashMap<>();
