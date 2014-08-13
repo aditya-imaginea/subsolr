@@ -80,30 +80,23 @@
 <field name="LAT_LONG" type="numericInt" indexed="true" stored="true"
     required="true" multiValued="true" tokenized="true" />-->
                 
-                
-    <field name="TITLE"  type="text_en" indexed="true" stored="true"
-                required="true" multiValued="true" tokenized="true" /> 
-    <field name="PAGES"  type="numericInt" indexed="true" stored="true"
-                required="true" multiValued="true" tokenized="true" />    
-    <field name="PRICE"  type="numericInt" indexed="true" stored="true"
-                required="true" multiValued="true" tokenized="true" />
-    <field name="AUTHOR"  type="numericInt" indexed="true" stored="true"
+    
+    <field name="ID"  type="numericInt" indexed="true" stored="true"
                required="true" multiValued="true" tokenized="true" />
-    <field name="EMP_ID"  type="numericInt" indexed="true" stored="true"
+    <field name="Name"  type="numericInt" indexed="true" stored="true"
                required="true" multiValued="true" tokenized="true" />
-    <field name="EMP_NAME"  type="text_en" indexed="true" stored="true"
+    <field name="Continent"  type="text_en" indexed="true" stored="true"
                required="true" multiValued="true" tokenized="true" />
-    <field name="LNAME"  type="text_en" indexed="true" stored="true"
+    <field name="District"  type="text_en" indexed="true" stored="true"
                required="true" multiValued="true" tokenized="true" />
-    <field name="EMP_GENDER"  type="text_en" indexed="true" stored="true"
+    <field name="Population"  type="text_en" indexed="true" stored="true"
                required="true" multiValued="true" tokenized="true" />
-    <field name="EMP_HIRE_DATE"  type="text_en" indexed="true" stored="true"
-                  required="true" multiValued="true" tokenized="true" />  
-    <field name="DEPT_ID"  type="numericInt" indexed="true" stored="true"
-                 required="true" multiValued="true" tokenized="true" /> 
-    <field name="DEPT_NAME"  type="text_en" indexed="true" stored="true"
-                  required="true" multiValued="true" tokenized="true" />  
-    <field name="EMP_DEPT"  type="text_en" indexed="true" stored="true"
-                  required="true" multiValued="true" tokenized="true" />   
+    <field name="Code"  type="text_en" indexed="true" stored="true"
+               required="true" multiValued="true" tokenized="true" />
+    <field name="CountryCode"  type="text_en" indexed="true" stored="true"
+               required="true" multiValued="true" tokenized="true" />
+    <field name="Country"  type="text_en" indexed="true" stored="true"
+               required="true" multiValued="true" tokenized="true" />
+    
          
 </schema>

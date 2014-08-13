@@ -11,36 +11,43 @@
 	<context:property-placeholder location="classpath:application.properties" />
 
 	<bean id="xmlParserUtil" class="com.subsolr.util.XMLParserUtil">
-		<constructor-arg index="0" value="${lucene.version}" 
-	
+		<constructor-arg index="0" value="${lucene.version}"  />
+        </bean>
+	<bean id="dsFactory" class="com.subsolr.datasource.DataSourceFactory">
+		<constructor-arg index="0" ref="xmlParserUtil" />
+                <constructor-arg index="1" ref="xPath" />
 	
 	</bean>
 
-	<bean id="fieldContextProcessor" class="com.subsolr.contextprocessor.FieldContextProcessor">
+	<bean id="fieldContextProcessor" class="com.subsolr.config.FieldConfigurationBean">
 		<constructor-arg index="0"
-			value="classpath:/com/subsolr/contextprocessors/FieldContext.xml" />
+			value="classpath:/com/subsolr/contextprocessors/WorldFieldContext.xml" />
 		<constructor-arg index="1" ref="documentBuilder" />
 		<constructor-arg index="2" ref="xPath" />
-		<constructor-arg index="3" value="${lucene.version}" />
+		<constructor-arg index="3" ref="fieldTypeProcessor" />
+		<constructor-arg index="4" ref="fieldDefinitionProcessor" />
+		
 	</bean>
 
-	<bean id="documentContextProcessor" class="com.subsolr.contextprocessor.DocumentContextProcessor">
+	<bean id="documentContextProcessor" class="com.subsolr.config.DocumentConfigurationBean">
 		<constructor-arg index="0"
-			value="classpath:/com/subsolr/contextprocessors/DocumentContext.xml" />
+			value="classpath:/com/subsolr/contextprocessors/WorldDocumentContext.xml" />
 		<constructor-arg index="1" ref="xPath" />
 		<constructor-arg index="2" ref="documentBuilder" />
+                <constructor-arg index="3" ref="xmlParserUtil" />
+                <constructor-arg index="4" ref="dsFactory" />
 
 	</bean>
 
 	<bean id="fieldTypeProcessor"
-		class="com.subsolr.contextprocessor.fieldprocessor.FieldTypeProcessor">
+		class="com.subsolr.config.field.FieldTypeConfiguration">
 		<constructor-arg index="0" value="${lucene.version}" />
 		<constructor-arg index="1" ref="xPath" />
 		<constructor-arg index="2" ref="xmlParserUtil" />
 	</bean>
 
 	<bean id="fieldDefinitionProcessor"
-		class="com.subsolr.contextprocessor.fieldprocessor.FieldDefinitionProcessor">
+		class="com.subsolr.config.field.FieldDefinitionConfiguration">
 		<constructor-arg index="0" ref="xmlParserUtil" />
 	</bean>
 

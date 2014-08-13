@@ -1,275 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <documents>
-	<!-- configure data sources here -->
-	<Datasource id="ds1" type="sql">
-		<host>jdbc:mysql://localhost:3306/ventana_development</host>
-		<userid>solrlite</userid>
-		<password>admin</password>
-		<driver>com.mysql.jdbc.Driver</driver>
-	</Datasource>
+    <!--	 configure data sources here 
+    <SQLdatasource id="ds1" type="sql">
+            <host>jdbc:mysql://localhost:3306/subsolr</host>
+            <userid>root</userid>
+            <password>admin</password>
+            <driver>com.mysql.jdbc.Driver</driver>
+    </SQLdatasource>-->
+    <DataSource id="ds2" type="file">
+        <local_path>f:</local_path>
+        <file_name>book.csv</file_name>
+    </DataSource>
+    <DataSource id="ds1" type="sql">
+        <host>jdbc:mysql://localhost:3306/subsolr</host>
+        <userid>root</userid>
+        <password>admin</password>
+        <driver>com.mysql.jdbc.Driver</driver>
+    </DataSource>
+    
+    <Transformer id="default" class="com.subsolr.transformer.impl.DefaultTransformerImpl"/>
+    <Transformer id="deDup" class="com.subsolr.transformer.impl.DeDupTransformerImpl"/>
+    <Transformer id="conditionalSelect" class="com.subsolr.transformer.impl.ConditionalSelectTransformer"/>
+    
 
-	<DataSource id="ds2" type="ftp">
-		<host>xxxx</host>
-		<userid> xxxx</userid>
-		<password>yyyy</password>
-	</DataSource>
-
-	<DataSource id="ds3" type="file">
-		<path>local_path</path>
-		<file_name>xxxxx</file_name>
-	</DataSource>
-
-
-	<!-- configure documents here -->
-	<!-- <document name="ProcedureDocument">
-
-		<fieldset name="procedure_family" sourceId="ds1" 
-			EntityProcessor="com.subsolr.entityprocessors.SQLEntityProcessor">
-			<field column_name="DEFAULT_PROCEDURE_ID" field_map_name="DEFAULT_PROCEDURE_ID" />
-			<field column_name="PM_NAME" field_map_name="PM_NAME" />
-			<field column_name="PF_ID" field_map_name="PF_ID" />
-			<field column_name="PF_GRP_NAME" field_map_name="PF_GRP_NAME" />
-			<field column_name="PF_S_NAME" field_map_name="PF_S_NAME" />
-			<query>
-				<statement>
-					SELECT
-					pmd.id AS DEFAULT_PROCEDURE_ID ,
-					IF(pmd.simple_name
-					is NULL,'', pmd.simple_name) AS PM_NAME ,
-					pf.id AS PF_ID ,
-					pf.name AS
-					PF_NAME,
-					IF(pf.disambiguation_group_name is
-					null,"",pf.disambiguation_group_name) AS PF_GRP_NAME,
-					IF(pf.short_name is null,"",pf.short_name) AS PF_S_NAME
-					FROM
-					procedure_families pf
-					INNER JOIN procedure_mappings AS pmd
-					ON
-					pmd.procedure_family_id = pf.id
-					WHERE pmd.default=1
-				</statement>
-			</query>
-		</fieldset>
-		<fieldset name="procedure_mapping" sourceId="ds1"
-			EntityProcessor="com.subsolr.entityprocessors.SQLEntityProcessor">
-			<field column_name="PM_ID" field_map_name="PM_ID" />
-			<field column_name="AGE_RANGE" field_map_name="AGE_RANGE" />
-			<field column_name="PM_NAME" field_map_name="PM_NAME" />
-			<field column_name="DEFAULT_PROCEDURE_ID" field_map_name="DEFAULT_PROCEDURE_ID" />
-			<field column_name="PF_ID" field_map_name="PF_ID" />
-			<field column_name="PF_GRP_NAME" field_map_name="PF_GRP_NAME" />
-			<field column_name="PF_NAME" field_map_name="PF_NAME" />
-			<query>
-				<statement>
-					SELECT
-					pm.id AS PM_ID ,
-					IF(pm.age_range is NULL,'',
-					pm.age_range) AS AGE_RANGE ,
-					IF(pm.simple_name is NULL,'',
-					pm.simple_name) AS PM_NAME ,
-					T2.pmd_id AS DEFAULT_PROCEDURE_ID ,
-					T2.pf_id AS PF_ID ,
-					IF(T2.pf_group_name is NULL,'',T2.pf_group_name)
-					AS PF_GRP_NAME,
-					T2.pf_name AS PF_NAME
-					from
-					(SELECT
-					pmd.id AS pmd_id,
-					pf.id AS pf_id,
-					pf.disambiguation_group_name AS pf_group_name,
-					pf.name AS pf_name
-					FROM procedure_families pf
-					RIGHT JOIN
-					procedure_mappings AS pmd
-					ON pmd.procedure_family_id = pf.id
-					WHERE
-					pmd.default=1) as T2
-					INNER JOIN
-					procedure_mappings pm
-					ON
-					pm.procedure_family_id = T2.pf_id
-					WHERE pm.common=1;
-				</statement>
-			</query>
-		</fieldset>
-		<fieldset name="procedure_keyword" sourceId="ds1"
-			EntityProcessor="com.subsolr.entityprocessors.SQLEntityProcessor">
-			<field column_name="DEFAULT_PROCEDURE_ID" field_map_name="DEFAULT_PROCEDURE_ID" />
-			<field column_name="PF_ID" field_map_name="PF_ID" />
-			<field column_name="PF_NAME" field_map_name="PF_NAME" />
-			<field column_name="PF_GRP_NAME" field_map_name="PF_GRP_NAME" />
-			<field column_name="KEYWORDS" field_map_name="KEYWORDS" />
-			<query>
-				<statement>
-					SELECT
-					pm.id as DEFAULT_PROCEDURE_ID ,
-					pf.id as PF_ID ,
-					pf.name AS PF_NAME,
-					IF(pf.disambiguation_group_name is null,
-					"",pf.disambiguation_group_name) AS PF_GRP_NAME ,
-					T1.keywords as
-					KEYWORDS
-					FROM
-					( SELECT km.keyable_id,
-					GROUP_CONCAT( DISTINCT(kw.text)
-					SEPARATOR ' KEYWORD_SEPARATOR ' ) AS keywords
-					FROM keyword_mappings
-					km
-					INNER JOIN keywords kw
-					ON km.keyword_id = kw.id
-					WHERE
-					km.keyable_type = 'ProcedureFamily'
-					GROUP by km.keyable_id ) as T1
-					INNER JOIN procedure_families pf
-					ON T1.keyable_id = pf.id
-					INNER JOIN
-					procedure_mappings pm
-					ON pf.id = pm.procedure_family_id where
-					pm.default=1;
-				</statement>
-			</query>
-		</fieldset>
-
-		<mappings>
-			<mapping name="firstjoin">
-				procedure_family#DEFAULT_PROCEDURE_ID =
-				procedure_mapping#DEFAULT_PROCEDURE_ID
-			</mapping>
-			<mapping name="second">
-				firstjoin#DEFAULT_PROCEDURE_ID =
-				procedure_keyword#DEFAULT_PROCEDURE_ID
-			</mapping>
-		</mappings>
-
-	</document> -->
-	<document name="ProviderDocument">
-		<fieldset name="provider_name" sourceId="ds1"
-			EntityProcessor="com.subsolr.entityprocessors.SQLEntityProcessor">
-			<field column_name="PROVIDER_ID" field_map_name="PROVIDER_ID" />
-			<field column_name="PROVIDER_NAME" field_map_name="PROVIDER_NAME" />
-			<field column_name="PROVIDER_LAST_NAME" field_map_name="PROVIDER_LAST_NAME" />
-			<field column_name="PROVIDER_INITIALS" field_map_name="PROVIDER_INITIALS" />
-			<field column_name="PROVIDER_FIRST_NAME" field_map_name="PROVIDER_FIRST_NAME" />
-			<field column_name="PROVIDER_IS_FACILITY" field_map_name="PROVIDER_IS_FACILITY" />
-			<field column_name="PROVIDER_NETWORKS" field_map_name="PROVIDER_NETWORKS" />
-			<field column_name="LAT_LONG" field_map_name="LAT_LONG" />
-			<query>
-				<statement>
-					SELECT
-					p.id AS PROVIDER_ID ,
-					p.name AS PROVIDER_NAME,
-					p.last_name AS PROVIDER_LAST_NAME,
-					p.initials AS PROVIDER_INITIALS,
-					p.first_name AS PROVIDER_FIRST_NAME,
-					IF(p.facility_name is NULL,0,
-					1) AS PROVIDER_IS_FACILITY ,
-					GROUP_CONCAT(
-					DISTINCT(pp.provider_network_id) SEPARATOR '  ') AS
-					PROVIDER_NETWORKS ,
-					GROUP_CONCAT(CONCAT(ROUND(pl.latitude,2),',',ROUND(pl.longitude,2)) SEPARATOR ' ')  AS LAT_LONG
-					FROM providers p
-					INNER JOIN provider_participations pp ON p.id = pp.provider_id
-					INNER JOIN provider_locations pl ON pp.provider_location_id = pl.id
-					WHERE pl.latitude IS NOT NULL AND pl.longitude IS NOT NULL
-					group by
-					p.id;
-				</statement>
-			</query>
-		</fieldset>
-		<fieldset name="practice_name" sourceId="ds1"
-			EntityProcessor="com.subsolr.entityprocessors.SQLEntityProcessor">
-			<field column_name="PRACTICE_NAME" field_map_name="PRACTICE_NAME" />
-			<field column_name="PROVIDER_ID" field_map_name="PROVIDER_ID" />
-			<field column_name="LAT_LONG" field_map_name="LAT_LONG" />
-			<field column_name="PROVIDER_NETWORKS" field_map_name="PROVIDER_NETWORKS" />
-			<query>
-				<statement>
-					SELECT
-					p.practice_name AS PRACTICE_NAME,
-					pr.id AS
-					PROVIDER_ID,
-					CONCAT(ROUND(pl.latitude,2),' ',
-					ROUND(pl.longitude,2)) AS LAT_LONG ,
-					GROUP_CONCAT(
-					DISTINCT(ppp.provider_network_id) SEPARATOR '  ') AS
-					PROVIDER_NETWORKS
-					FROM
-					practices p
-					INNER JOIN
-					provider_practices pp
-					ON
-					p.id = pp.practice_id
-					INNER JOIN providers pr
-					ON pp.provider_id =
-					pr.id
-					INNER JOIN provider_locations pl
-					ON p.practice_location_id =
-					pl.id
-					INNER JOIN provider_participations ppp
-					ON ppp.provider_id =
-					pr.id and ppp.provider_location_id =
-					p.practice_location_id
-					GROUP by
-					pr.id;
-				</statement>
-			</query>
-		</fieldset>
-		<fieldset name="provider_network" sourceId="ds1"
-			EntityProcessor="com.subsolr.entityprocessors.SQLEntityProcessor">
-			<field column_name="PROVIDER_ID" field_map_name="PROVIDER_ID" />
-			<field column_name="PROVIDER_NETWORKS" field_map_name="PROVIDER_NETWORKS" />
-			<field column_name="LAT_LONG" field_map_name="LAT_LONG" />
-			<query>
-				<statement>
-					SELECT
-					p.id AS PROVIDER_ID ,
-					pp.provider_network_id AS
-					PROVIDER_NETWORKS ,
-					CONCAT(ROUND(pl.latitude,2),'  ',
-					ROUND(pl.longitude,2)) AS LAT_LONG
-					FROM provider_location_flags plf
-					INNER JOIN provider_locations pl ON plf.provider_location_id =
-					pl.id
-					INNER JOIN provider_participations pp ON plf.provider_id =
-					pp.provider_id AND pl.id = pp.provider_location_id
-					INNER JOIN
-					providers p ON pp.provider_id = p.id
-					WHERE plf.flag_name =
-					'emergency room service';
-				</statement>
-			</query>
-		</fieldset>
-		<mappings>
-			<mapping name="firstjoin">
-				provider_name#PROVIDER_ID =
-				practice_name#PROVIDER_ID
-			</mapping>
-			<mapping name="second">
-				firstjoin#PROVIDER_ID =
-				provider_network#PROVIDER_ID
-			</mapping>
-		</mappings>
-		<!-- <fieldset name="network_plan" sourceId="ds1"
-			EntityProcessor="com.subsolr.entityprocessors.SQLEntityProcessor">
-			<field column_name="PROVIDER_PLANS" field_map_name="PROVIDER_PLANS" />
-			<field column_name="PROVIDER_NETWORKS" field_map_name="PROVIDER_NETWORKS" />
+    <document name="employeeDoc"  transformer="deDup">
+        <fieldset transformer="default" transKeys="TITLE" name="book" sourceId="ds2" DataSource="ds2">
+            <field column_name="1" field_map_name="TITLE" />
+            <field column_name="2" field_map_name="PAGES" />
+            <field column_name="3" field_map_name="PRICE" />
+            <field column_name="4" field_map_name="AUTHOR" />
+            
 			
-			<query>
-				<statement>
-					SELECT
-					ipnm.provider_network_id AS PROVIDER_NETWORKS ,
-					GROUP_CONCAT( ip.id SEPARATOR '  ') AS PROVIDER_PLANS
-					FROM insurance_plan_network_mappings ipnm
-					INNER JOIN insurance_plans ip
-					ON FIND_IN_SET(ipnm.external_plan_network_mapping_code,
-					ip.external_plan_network_mapping_code)
-					GROUP BY ipnm.provider_network_id;
+        </fieldset>
+        <fieldset transformer="deDup" transKeys="EMP_NAME" name="employees" sourceId="ds1">
+            <field column_name="EMP_ID" field_map_name="EMP_ID" />
+            <field column_name="EMP_NAME" field_map_name="EMP_NAME" />
+            <field column_name="LNAME" field_map_name="LNAME" />
+            <field column_name="EMP_GENDER" field_map_name="EMP_GENDER" />
+            <field column_name="EMP_HIRE_DATE" field_map_name="EMP_HIRE_DATE" />
+            <field column_name="DEPT_ID" field_map_name="EMP_DEPT" />
+            <query>
+                <statement>
+                    SELECT
+                    emp_no as EMP_ID,
+                    first_name as EMP_NAME,
+                    last_name as LNAME,
+                    gender as EMP_GENDER,
+                    hire_date as EMP_HIRE_DATE,
+                    emp_dept as DEPT_ID
+                    FROM
+                    employees
+                </statement>
+                <max_cached_results> 10000 </max_cached_results>
+            </query>
+        </fieldset>
+		
+                
+        <fieldset transformer="default" transKeys="DEPT_ID" name="depts" sourceId="ds1" >
+            <field column_name="DEPT_ID" field_map_name="DEPT_ID" />
+            <field column_name="DEPT_NAME" field_map_name="DEPT_NAME" />
+            <query>
+                <statement>
+                    SELECT
+                    dept_id as DEPT_ID,
+                    dept_name as DEPT_NAME					
+                    FROM
+                    department
+                </statement>
+                <max_cached_results> 10000 </max_cached_results>
+            </query>
+        </fieldset>
+        <mappings>
+            <mapping name="firstjoin">
+                employees#EMP_DEPT=depts#DEPT_ID
+            </mapping>
+            <mapping name="secondjoin">
+                employees#EMP_ID=book#AUTHOR
+            </mapping>			
 
-				</statement>
-			</query>
-		</fieldset> -->
-		
-		
-	</document>
+        </mappings>
+
+        
+        <join id="join1" leftFieldset="employees" leftKey="EMP_DEPT" rightFieldset="depts" rightKey="DEPT_ID"/>
+        <join id="join2" leftFieldset="employees" leftKey="EMP_ID" rightFieldset="book" rightKey="AUTHOR"/>
+         
+        
+        
+        
+    </document>-->
 </documents>

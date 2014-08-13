@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<documents>
+    <Filedatasource id="ds2" type="csv">
+        <path>f:\\book.csv</path>
+        <File>f:\\book.csv</File>
+    </Filedatasource>
+    <document name="books">
+        <fieldset name="book" sourceId="ds2" DataSource="ds2"
+          EntityProcessor="com.subsolr.entityprocessors.CSVEntityProcessor">
+            <field column_name="TITLE" field_map_name="1" />
+            <field column_name="PAGES" field_map_name="2" />
+            <field column_name="PRICE" field_map_name="3" />
+			
+        </fieldset>
+    </document>
+
+</documents>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<documents>
+    <!--	 configure data sources here 
+    <SQLdatasource id="ds1" type="sql">
+            <host>jdbc:mysql://localhost:3306/subsolr</host>
+            <userid>root</userid>
+            <password>admin</password>
+            <driver>com.mysql.jdbc.Driver</driver>
+    </SQLdatasource>-->
+    <DataSource id="ds2" type="file">
+        <local_path>f:</local_path>
+        <file_name>book.csv</file_name>
+    </DataSource>
+    <DataSource id="ds1" type="sql">
+        <host>jdbc:mysql://localhost:3306/sakila</host>
+        <userid>root</userid>
+        <password>admin</password>
+        <driver>com.mysql.jdbc.Driver</driver>
+    </DataSource>
+    
+    <Transformer id="default" class="com.subsolr.transformer.impl.DefaultTransformerImpl"/>
+    <Transformer id="csvWriteBack" class="com.subsolr.transformer.impl.CSVWriteBackTransformerImpl"/>
+    <Transformer id="deDup" class="com.subsolr.transformer.impl.DeDupTransformerImpl"/>
+    <Transformer id="conditionalSelect" class="com.subsolr.transformer.impl.ConditionalSelectTransformer"/>
+    
+
+    <document name="actorsDoc"  transformer="csvWriteBack">
+        <fieldset transformer="default" transKeys="ID" name="actor" sourceId="ds1">
+            <field column_name="first_name" field_map_name="FName" />
+            <field column_name="last_name" field_map_name="LName" />
+            <field column_name="actor_id" field_map_name="ActorID" />
+            <query>
+                <statement>
+                    SELECT
+                    first_name,last_name,actor_id from actor;
+                </statement>
+                <max_cached_results> 10000 </max_cached_results>
+            </query>
+        </fieldset>
+        <fieldset transformer="deDup" transKeys="ActorID" name="film" sourceId="ds1">
+            <field column_name="actor_id" field_map_name="ActorID" />
+            <field column_name="film_info" field_map_name="FilmInfo" />
+            
+            <query>
+                <statement>
+                    SELECT
+                    actor_id,film_info from actor_info;
+                </statement>
+                <max_cached_results> 10000 </max_cached_results>
+            </query>
+        </fieldset>
+	
+        
+        
+        <join id="join1" leftFieldset="actor" leftKey="ActorID" rightFieldset="film" rightKey="ActorID"/>
+        
+    </document>-->
+</documents>

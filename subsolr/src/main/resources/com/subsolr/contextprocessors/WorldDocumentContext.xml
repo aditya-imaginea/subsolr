@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<documents>
+    <!--	 configure data sources here 
+    <SQLdatasource id="ds1" type="sql">
+            <host>jdbc:mysql://localhost:3306/subsolr</host>
+            <userid>root</userid>
+            <password>admin</password>
+            <driver>com.mysql.jdbc.Driver</driver>
+    </SQLdatasource>-->
+    
+    <DataSource id="ds1" type="sql">
+        <host>jdbc:mysql://localhost:3306/world</host>
+        <userid>root</userid>
+        <password>admin</password>
+        <driver>com.mysql.jdbc.Driver</driver>
+    </DataSource>
+    
+    <Transformer id="default" class="com.subsolr.transformer.impl.DefaultTransformerImpl"/>
+    <Transformer id="deDup" class="com.subsolr.transformer.impl.DeDupTransformerImpl"/>
+    <Transformer id="conditionalSelect" class="com.subsolr.transformer.impl.ConditionalSelectTransformer"/>
+    
+
+    <document name="cityDoc"  transformer="default">
+        <fieldset transformer="default" transKeys="ID" name="city" sourceId="ds1">
+            <field column_name="Name" field_map_name="Name" />
+            <field column_name="CountryCode" field_map_name="CountryCode" />
+            <field column_name="District" field_map_name="District" />
+            <field column_name="Population" field_map_name="Population" />
+            <query>
+                <statement>
+                    SELECT
+                    Name,CountryCode,District,Population from city;
+                </statement>
+                <max_cached_results> 10000 </max_cached_results>
+            </query>
+        </fieldset>
+        <fieldset transformer="deDup" transKeys="Code" name="country" sourceId="ds1">
+            <field column_name="Code" field_map_name="Code" />
+            <field column_name="Country" field_map_name="Country" />
+            <field column_name="Continent" field_map_name="Continent" />
+            <query>
+                <statement>
+                    SELECT
+                    Code,Name as Country,Continent from country;
+                </statement>
+                <max_cached_results> 10000 </max_cached_results>
+            </query>
+        </fieldset>
+	
+        <join id="join1" leftFieldset="city" leftKey="CountryCode" rightFieldset="country" rightKey="Code"/>
+         
+        
+        
+        
+    </document>-->
+</documents>
